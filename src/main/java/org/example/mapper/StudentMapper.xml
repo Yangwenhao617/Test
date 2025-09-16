@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.mapper.StudentMapper">
+
+    <!-- 多条件查询：使用<where>和<if>标签实现动态SQL -->
+    <select id="findStudentByNameOrMajor" resultType="org.example.entity.Student">
+        SELECT * FROM student
+        <where>
+            <!-- 如果name参数不为空且不为空字符串，则添加姓名条件 -->
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <!-- 如果major参数不为空且不为空字符串，则添加专业条件 -->
+            <if test="major != null and major != ''">
+                AND major = #{major}
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+    <!-- 单条件查询：根据ID列表查询 -->
+    <select id="findByList" resultType="org.example.entity.Student">
+        SELECT * FROM student
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND id &lt; 5  <!-- 使用&lt;表示小于号 < -->
+        ORDER BY id
+    </select>
+
+</mapper>
