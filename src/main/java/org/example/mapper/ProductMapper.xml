@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.mapper.ProductMapper">
+
+    <!-- 方法1：返回Map结果 -->
+    <select id="getProductsByCategoryName" parameterType="String" resultType="java.util.Map">
+        SELECT
+            *
+        FROM product p
+                 INNER JOIN category c ON p.typeid = c.id
+        WHERE c.typename = #{categoryName}
+    </select>
+
+    <!-- 方法2：返回ProductDTO结果 -->
+    <select id="getProductsByCategoryNameWithDTO" parameterType="String" resultType="org.example.entity.ProductDTO">
+        SELECT
+            p.id,
+            p.goodsname,
+            p.price,
+            c.typename
+        FROM product p
+                 INNER JOIN category c ON p.typeid = c.id
+        WHERE c.typename = #{categoryName}
+    </select>
+
+    <!-- 方法3：返回包含Category对象的Product结果 -->
+    <resultMap id="ProductWithCategoryResultMap" type="org.example.entity.Product">
+        <id property="id" column="id"/>
+        <result property="goodsname" column="goodsname"/>
+        <result property="price" column="price"/>
+        <result property="typeid" column="typeid"/>
+        <association property="category" javaType="Category">
+            <id property="id" column="category_id"/>
+            <result property="typename" column="typename"/>
+        </association>
+    </resultMap>
+
+    <select id="getProductsWithCategoryByCategoryName" parameterType="String" resultMap="ProductWithCategoryResultMap">
+        SELECT
+            p.id,
+            p.goodsname,
+            p.price,
+            p.typeid,
+            c.id as category_id,
+            c.typename
+        FROM product p
+                 INNER JOIN category c ON p.typeid = c.id
+        WHERE c.typename = #{categoryName}
+    </select>
+
+    <!-- 查询所有商品及其类别信息 -->
+    <select id="getAllProductsWithCategory" resultMap="ProductWithCategoryResultMap">
+        SELECT
+            p.id,
+            p.goodsname,
+            p.price,
+            p.typeid,
+            c.id as category_id,
+            c.typename
+        FROM product p
+                 INNER JOIN category c ON p.typeid = c.id
+    </select>
+
+    <!-- 根据ID查询商品及其类别信息 -->
+    <select id="getProductWithCategoryById" parameterType="Integer" resultMap="ProductWithCategoryResultMap">
+        SELECT
+            p.id,
+            p.goodsname,
+            p.price,
+            p.typeid,
+            c.id as category_id,
+            c.typename
+        FROM product p
+                 INNER JOIN category c ON p.typeid = c.id
+        WHERE p.id = #{id}
+    </select>
+
+</mapper>
